@@ -1,0 +1,12 @@
+
+monitors:
+  - endpoint:
+    type: probe
+    name: GoogleHello
+    url: http://google-hello:8080
+    method: GET
+    frequency: 5
+    expectedResponseCode: 200
+    maxfailures: 5
+    cachet:
+      componentid: 1
