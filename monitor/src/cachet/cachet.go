@@ -96,11 +96,11 @@ func (c Cachet) UpdateIncident(incidentid int, status string, message string, mo
 					statusid = "4"
 			}
 
-		payload := strings.NewReader("{\n\t\"message\" : \"" + message + "\",\n\t\"status\" : " + statusid + "\n}")
+		payload := strings.NewReader("{\n\t\"message\" : \"" + message + "\",\n\t\"visible\" : 1,\n\t\"component_status\" : 1,\n\t\"component_id\" : 1,\n\t\"status\" : " + statusid + "\n}")
 		
 		fmt.Println(payload)
-		var url string =  config.Cachet.Server + "/incidents/" + strconv.Itoa(incidentid) + "/updates"
-		req, reqErr := http.NewRequest("POST",url, payload)
+		var url string =  config.Cachet.Server + "/incidents/" + strconv.Itoa(incidentid)
+		req, reqErr := http.NewRequest("PUT",url, payload)
 		req.Header.Add("content-type", "application/json")
 		req.Header.Add("X-Cachet-Token", config.Cachet.Token)
 	
