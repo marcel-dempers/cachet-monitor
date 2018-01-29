@@ -57,7 +57,9 @@ func main() {
 	for _, monitor := range config.Monitors {
 
 		var test cachet.Cachet
-		test.CreateIncident("test from monitor2", "this is a test2", monitor, config)
+		//test.CreateIncident(monitor.Name + " - Incident raised", "Error info: blah blah", monitor, config)
+		
+		test.UpdateIncident(12, "Fixed", "We fixed it", monitor, config)
 		controller.StartMonitor(monitor, config)
 	}
 
