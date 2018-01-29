@@ -10,6 +10,7 @@ import (
 	controller "app/controller"
 	"io/ioutil"
 	"github.com/ghodss/yaml"
+	cachet "app/cachet"
 	  
 )
 
@@ -54,6 +55,9 @@ func main() {
 	
 	var controller controller.Controller
 	for _, monitor := range config.Monitors {
+
+		var test cachet.Cachet
+		test.CreateIncident("test from monitor2", "this is a test2", monitor, config)
 		controller.StartMonitor(monitor, config)
 	}
 
