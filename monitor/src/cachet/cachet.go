@@ -54,7 +54,7 @@ func (c Cachet) UpdateComponent(componentid int, status string, monitor models.M
 	return monitor
 }
 
-func (c Cachet) CreateIncident(name string, message string, monitor models.Monitor , config models.Configuration ){
+func (c Cachet) CreateIncident(name string, message string, monitor models.Monitor , config models.Configuration ) models.CachetData {
 
 	fmt.Printf("Creating Cachet incident- name: %v componentid: %v message: %v \n", name,  monitor.Cachet.Componentid, message)
 	
@@ -90,8 +90,10 @@ func (c Cachet) CreateIncident(name string, message string, monitor models.Monit
 		if jsonErr != nil {
 			panic(jsonErr)
 		}
-
+		
 		defer resp.Body.Close()
+
+		return cachetComponent.Data
 	}
 
 }
