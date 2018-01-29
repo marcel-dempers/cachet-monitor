@@ -51,8 +51,7 @@ func GetConfiguration() models.Configuration{
 func main() {
 
 	config := GetConfiguration()
-	fmt.Println(config)
-
+	
 	var controller controller.Controller
 	for _, monitor := range config.Monitors {
 		controller.StartMonitor(monitor, config)
