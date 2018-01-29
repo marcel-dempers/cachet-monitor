@@ -70,8 +70,8 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 				fmt.Printf("Monitor %v timeout ... \n" , monitor.Name, reqErr)
 			} else if reqErr, ok := reqErr.(net.Error); ok && reqErr.Temporary() {
 				fmt.Printf("Monitor %v temporary failure ... \n" , monitor.Name, reqErr)
-			} else if strings.Contains(reqErr.Error(), "getsockopt") { 
-				fmt.Printf("Monitor %v getsockopt failure ... \n" , monitor.Name, reqErr)
+			} else if strings.Contains(reqErr.Error(), "getsockopt") || strings.Contains(reqErr.Error(), "dial tcp: lookup") { 
+				fmt.Printf("Monitor %v network failure ... \n" , monitor.Name, reqErr)
 			} else {
 				fmt.Printf("Error message : %#v\n", reqErr.Error()) 
 				panic(reqErr)
@@ -83,7 +83,7 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 		//failure handlers
 		
 		//failure making request - getsockops errors
-		if resp == nil && reqErr != nil && strings.Contains(reqErr.Error(), "getsockopt") {
+		if resp == nil && reqErr != nil && (strings.Contains(reqErr.Error(), "getsockopt") || strings.Contains(reqErr.Error(), "dial tcp: lookup")) {
 			failureCount++
 			fmt.Printf("Monitor failure making request (getsockopt): %v [ %v / %v ] \n" , monitor.Name, failureCount , monitor.Maxfailures)
 			
@@ -113,7 +113,7 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 				monitor = update_cachet(monitor.Cachet.Componentid, "Failure", monitor, config)
 				fmt.Printf("Monitor: %v is now in a status: %v \n" , monitor.Name, monitor.Status)
 			}
-		//ongoing failure
+		//ongoing failure - response code
 		} else if resp != nil && resp.StatusCode != monitor.ExpectedResponseCode && monitor.Status == "Failure" {
 			//fmt.Printf("Monitor: %v remains in a status: %v \n" , monitor.Name, monitor.Status)
 		//potential recovery
