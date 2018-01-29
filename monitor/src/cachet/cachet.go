@@ -7,6 +7,8 @@ import (
 	"strconv"
     "strings"
 	"time"
+	"io/ioutil"
+	"encoding/json"
 )
 
 type Cachet struct{
@@ -74,12 +76,27 @@ func (c Cachet) CreateIncident(name string, message string, monitor models.Monit
 		panic(reqErr)
 	} else {
 		fmt.Println("Created incident success")
+
+		body, readErr := ioutil.ReadAll(resp.Body)
+		if readErr != nil {
+			panic(readErr)
+		}
+		
+		cachetComponent := models.CachetComponent{}
+
+		jsonErr := json.Unmarshal(body, &cachetComponent)
+		
+		fmt.Printf("%#v\n",cachetComponent)
+		if jsonErr != nil {
+			panic(jsonErr)
+		}
+
 		defer resp.Body.Close()
 	}
 
 }
 
-func (c Cachet) UpdateIncident(incidentid int, status string, message string, monitor models.Monitor , config models.Configuration ){
+func (c Cachet) UpdateIncident(incidentid int, status string, component_status string, message string, monitor models.Monitor , config models.Configuration ){
 	
 		fmt.Printf("Updating Cachet incident- id: %v componentid: %v message: %v \n", strconv.Itoa(incidentid),  monitor.Cachet.Componentid, message)
 		
@@ -96,7 +113,7 @@ func (c Cachet) UpdateIncident(incidentid int, status string, message string, mo
 					statusid = "4"
 			}
 
-		payload := strings.NewReader("{\n\t\"message\" : \"" + message + "\",\n\t\"visible\" : 1,\n\t\"component_status\" : 1,\n\t\"component_id\" : 1,\n\t\"status\" : " + statusid + "\n}")
+		payload := strings.NewReader("{\n\t\"message\" : \"" + message + "\",\n\t\"visible\" : 1,\n\t\"component_status\" : " + component_status + ",\n\t\"component_id\" : " + strconv.Itoa(monitor.Cachet.Componentid) + " ,\n\t\"status\" : " + statusid + "\n}")
 		
 		fmt.Println(payload)
 		var url string =  config.Cachet.Server + "/incidents/" + strconv.Itoa(incidentid)
