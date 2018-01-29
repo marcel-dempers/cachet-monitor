@@ -15,6 +15,7 @@ type Monitor struct {
 	Maxfailures int
 	Cachet CachetItem
 	Status string
+	TimeoutInSec int32
 }
 
 type CachetItem struct {

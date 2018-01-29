@@ -1,5 +1,10 @@
-#!/bin/bash
+#/bin/bash
 
+DIR=$PWD
+
+cd monitor/src
+
+#windows quirk
 export MSYS_NO_PATHCONV=1
 
 docker build . -t cachet-monitor

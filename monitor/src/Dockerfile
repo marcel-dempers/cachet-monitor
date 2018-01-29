@@ -1,4 +1,4 @@
-FROM 1.9.3-alpine3.7 as builder
+FROM golang:1.9.3-alpine3.7 as builder
 
 # installing git
 RUN apk update && apk upgrade && \

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	 
 	 "fmt"
 	 "net/http"
 	 "app/models"
@@ -8,6 +9,7 @@ import (
 	 "net"
 	 "strings"
 	 "strconv"
+	 "math/rand"
 )
 
 func update_cachet(componentid int, status string, monitor models.Monitor, config models.Configuration ) models.Monitor {
@@ -59,7 +61,7 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 		req, reqErr := http.NewRequest(monitor.Method, monitor.Url, nil)
 		fmt.Printf("Connecting %v ... \n" , monitor.Name)
 		client := &http.Client{
-			Timeout: time.Second * 10,
+			Timeout: time.Second * time.Duration(rand.Int31n(monitor.TimeoutInSec)),
 		}
 		resp, reqErr := client.Do(req)
 
