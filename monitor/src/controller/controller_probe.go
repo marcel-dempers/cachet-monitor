@@ -24,7 +24,7 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 	for {
         
 		req, reqErr := http.NewRequest(monitor.Method, monitor.Url, nil)
-		fmt.Printf("Connecting %v ... \n" , monitor.Name)
+		
 		client := &http.Client{
 			Timeout: time.Second * time.Duration(rand.Int31n(monitor.TimeoutInSec)),
 		}
@@ -45,6 +45,7 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 			defer resp.Body.Close()
 		}
 		
+	    cachetData := models.CachetData{}
 		//failure handlers
 		
 		//failure making request - getsockops errors
@@ -54,7 +55,10 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 			
 			if failureCount == monitor.Maxfailures {
 				fmt.Printf("Monitor: %v max failures reached %v / %v\n", monitor.Name, failureCount ,monitor.Maxfailures)
-				monitor = cachet.UpdateComponent(monitor.Cachet.Componentid, "Failure", monitor, config)
+				//monitor = cachet.UpdateComponent(monitor.Cachet.Componentid, "Failure", monitor, config)
+				cachetData = cachet.CreateIncident(monitor.Name + " - Incident raised", "```Error: " + reqErr.Error() + "```", monitor, config)
+				monitor.Status = "Failure"
+				monitor.Cachet.Incidentid = cachetData.Id
 				fmt.Printf("Monitor: %v is now in a status: %v \n" , monitor.Name, monitor.Status)
 			}
 
@@ -65,7 +69,9 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 			
 			if failureCount == monitor.Maxfailures {
 				fmt.Printf("Monitor: %v max failures reached %v / %v\n", monitor.Name, failureCount ,monitor.Maxfailures)
-				monitor = cachet.UpdateComponent(monitor.Cachet.Componentid, "Failure", monitor, config)
+				cachetData = cachet.CreateIncident(monitor.Name + " - Incident raised", "```Error: " + reqErr.Error() + "```", monitor, config)
+				monitor.Status = "Failure"
+			    monitor.Cachet.Incidentid = cachetData.Id
 				fmt.Printf("Monitor: %v is now in a status: %v \n" , monitor.Name, monitor.Status)
 			}
 		//failure by status code from endpoint!	
@@ -75,7 +81,9 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 			
 			if failureCount == monitor.Maxfailures {
 				fmt.Printf("Monitor: %v max failures reached %v / %v\n", monitor.Name, failureCount ,monitor.Maxfailures)
-				monitor = cachet.UpdateComponent(monitor.Cachet.Componentid, "Failure", monitor, config)
+				cachetData = cachet.CreateIncident(monitor.Name + " - Incident raised", "```Error: " + reqErr.Error() + "```", monitor, config)
+				monitor.Status = "Failure"
+				monitor.Cachet.Incidentid = cachetData.Id
 				fmt.Printf("Monitor: %v is now in a status: %v \n" , monitor.Name, monitor.Status)
 			}
 		//ongoing failure - response code
@@ -86,7 +94,10 @@ func Controller_Probe_Start(monitor models.Monitor, config models.Configuration)
 
 			if recoveryCount == recoveryReached {
 				fmt.Printf("Monitor: %v reached reached recovery status \n", monitor.Name)
-				monitor = cachet.UpdateComponent(monitor.Cachet.Componentid, "Healthy", monitor, config)
+
+				//monitor = cachet.UpdateComponent(monitor.Cachet.Componentid, "Healthy", monitor, config)
+				cachet.UpdateIncident(monitor.Cachet.Incidentid, "Fixed", "1", "Probe has reached success. Endpoint is now healthy", monitor, config)
+				monitor.Status = "Healthy"
 				fmt.Printf("Monitor: %v is now in a status: %v \n" , monitor.Name, monitor.Status)
 			}
 

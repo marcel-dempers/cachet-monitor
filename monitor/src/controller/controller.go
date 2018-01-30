@@ -5,7 +5,7 @@ import (
 	 "net/http"
 	 log "github.com/sirupsen/logrus"
 	 "app/models"
-	
+	 cachet "app/cachet"
 	 "strconv"
 	 "io/ioutil"
 	 "encoding/json"
@@ -19,7 +19,16 @@ func (c Controller) StartMonitor(monitor models.Monitor, config models.Configura
 	fmt.Println("starting monitor: " + monitor.Name)
 	
 	monitor = Get_Cachet_Component_Statuses(monitor, config)
+	var cachet cachet.Cachet
 	
+	var cachetData,cachetErr = cachet.GetComponentPendingIncident(monitor.Cachet.Componentid, config)
+	
+	if cachetErr != nil {
+		panic(cachetErr)
+	}
+
+	monitor.Cachet.Incidentid = cachetData.Id
+
 	switch monitor.Type {
 		case "probe":
 			fmt.Printf("Controller: starting probe type monitor %v \n", monitor.Name)

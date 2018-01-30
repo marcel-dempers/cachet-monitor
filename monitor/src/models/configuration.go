@@ -20,6 +20,7 @@ type Monitor struct {
 
 type CachetItem struct {
 	Componentid int
+	Incidentid int
 }
 
 type Cachet struct {

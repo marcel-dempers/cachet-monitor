@@ -4,6 +4,7 @@ Solution that probes endpoints and updates cachet if there is an outage or recov
 ## Prerequisites
 
 You will need Cachet up and running. </br>
+Take a look at Cachet's installation guide [here](https://docs.cachethq.io/docs/installing-cachet) </br>
 You will also need a URL (I.E `http://cachet:8000/api/v1`) of that Cachet server and authentication (I.E `zlvNVV0VxKkuRL0WM5ww`) token
 
 ## Configuration
