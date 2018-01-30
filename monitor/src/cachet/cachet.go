@@ -34,7 +34,7 @@ func (c Cachet) UpdateComponent(componentid int, status string, monitor models.M
 	req.Header.Add("X-Cachet-Token", config.Cachet.Token)
 
 	client := &http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 200,
 	}
 	resp, reqErr := client.Do(req)
 	
@@ -64,7 +64,7 @@ func (c Cachet) CreateIncident(name string, message string, monitor models.Monit
 	req.Header.Add("X-Cachet-Token", config.Cachet.Token)
 
 	client := &http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 200,
 	}
 	resp, reqErr := client.Do(req)
 	
@@ -124,7 +124,7 @@ func (c Cachet) UpdateIncident(incidentid int, status string, component_status s
 		req.Header.Add("X-Cachet-Token", config.Cachet.Token)
 	
 		client := &http.Client{
-			Timeout: time.Second * 10,
+			Timeout: time.Second * 200,
 		}
 		resp, reqErr := client.Do(req)
 		
@@ -139,4 +139,58 @@ func (c Cachet) UpdateIncident(incidentid int, status string, component_status s
 			defer resp.Body.Close()
 		}
 	
+}
+
+func (c Cachet) GetComponentPendingIncident(componentid int, config models.Configuration) (models.CachetData, error) {
+	fmt.Printf("Getting outstanding open incidents for component - id: %v \n", strconv.Itoa(componentid))
+
+	req, reqErr := http.NewRequest("GET", config.Cachet.Server + "/incidents?component_id=" + strconv.Itoa(componentid) + "&status=2", nil)
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("X-Cachet-Token", config.Cachet.Token)
+
+	client := &http.Client{
+		Timeout: time.Second * 200,
 	}
+	resp, reqErr := client.Do(req)
+	
+	if resp != nil {
+		fmt.Printf("%#v \n", resp)
+	}
+	if reqErr != nil {
+		fmt.Printf("Error message : %#v\n", reqErr.Error()) 
+		panic(reqErr)
+	} else {
+		fmt.Println("Retrieve component incidents success")
+
+		body, readErr := ioutil.ReadAll(resp.Body)
+		if readErr != nil {
+			panic(readErr)
+		}
+		
+		var cachetDataCollection struct {
+			Data []models.CachetData
+		}
+
+		var cachetData models.CachetData
+		 
+		jsonErr := json.Unmarshal(body, &cachetDataCollection)
+		
+		fmt.Printf("%#v\n",cachetDataCollection)
+		if jsonErr != nil {
+			panic(jsonErr)
+		}
+
+		if len(cachetDataCollection.Data) > 0 {
+			fmt.Printf("Component has %v incidents, taking first one", len(cachetDataCollection.Data) )
+			
+			return cachetDataCollection.Data[0], nil
+
+		} else {
+			fmt.Println("Component has no incident records")
+		}
+
+		defer resp.Body.Close()
+
+		return cachetData, nil
+	}
+}
