@@ -58,7 +58,7 @@ func (c Cachet) CreateIncident(name string, message string, monitor models.Monit
 
 	fmt.Printf("Creating Cachet incident- name: %v componentid: %v message: %v \n", name,  monitor.Cachet.Componentid, message)
 	
-	payload := strings.NewReader("{\n\t\"name\" : \"" + name + "\",\n\t\"message\" : \"" + message + "\",\n\t\"status\" : 2,\n\t\"component_id\" : 1,\n\t\"component_status\": 4,\n\t\"visible\": 1\n}")
+	payload := strings.NewReader("{\n\t\"name\" : \"" + name + "\",\n\t\"message\" : \"" + message + "\",\n\t\"status\" : 2,\n\t\"component_id\" : " + strconv.Itoa(monitor.Cachet.Componentid) + ",\n\t\"component_status\": 4,\n\t\"visible\": 1\n}")
 	req, reqErr := http.NewRequest("POST", config.Cachet.Server + "/incidents", payload)
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("X-Cachet-Token", config.Cachet.Token)
